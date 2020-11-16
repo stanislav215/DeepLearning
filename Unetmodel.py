@@ -1,10 +1,8 @@
 
 import tensorflow as tf
-import tensorflow.contrib as tfcontrib
 from tensorflow.python.keras import layers
 from tensorflow.python.keras import losses
 from tensorflow.python.keras import models
-from tensorflow.python.keras import backend as K  
 
 def conv_block(input_tensor, num_filters):
   encoder = layers.Conv2D(num_filters, (3, 3), padding='same')(input_tensor)
