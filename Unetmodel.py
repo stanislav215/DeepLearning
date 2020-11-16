@@ -86,3 +86,7 @@ def dice_coeff(y_true, y_pred):
 def dice_loss(y_true, y_pred):
     loss = 1 - dice_coeff(y_true, y_pred)
     return loss
+
+def loadModel(save_model_path):
+    return models.load_model(save_model_path, custom_objects={'bce_dice_loss': bce_dice_loss,
+                                                           'dice_coeff': dice_coeff})
