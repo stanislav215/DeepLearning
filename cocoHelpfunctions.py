@@ -154,15 +154,11 @@ def augmentationsGenerator(gen, augGeneratorArgs, seed=None):
                    
 
         yield img_aug, mask_aug
-augGeneratorArgs = dict(featurewise_center = False, 
-                        samplewise_center = False,
-                        rotation_range = 5, 
-                        width_shift_range = 0.01, 
-                        height_shift_range = 0.01, 
-                        brightness_range = (0.8,1.2),
-                        shear_range = 0.01,
-                        zoom_range = [1, 1.25],  
-                        horizontal_flip = True, 
-                        vertical_flip = False,
-                        fill_mode = 'reflect',
-                        data_format = 'channels_last')
+
+def splitDataset(images,ratio=0.8):
+    print("splitting dataset...")
+    dataset_size = len(images)
+    train_size = int(dataset_size*ratio)
+    print("train_size: {}".format(train_size))
+    print("val_size: {}".format(dataset_size-train_size))
+    return (images[0:train_size],images[train_size:-1])
