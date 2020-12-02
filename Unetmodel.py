@@ -32,41 +32,41 @@ def decoder_block(input_tensor, concat_tensor, num_filters):
   decoder = layers.Activation('relu')(decoder)
   return decoder
 
-def model(img_shape):
+def model(img_shape,filters=[32,64,128,256,512,1024]):
     inputs = layers.Input(shape=img_shape)
     # 256
 
-    encoder0_pool, encoder0 = encoder_block(inputs, 32)
+    encoder0_pool, encoder0 = encoder_block(inputs, filters[0])
     # 128
 
-    encoder1_pool, encoder1 = encoder_block(encoder0_pool, 64)
+    encoder1_pool, encoder1 = encoder_block(encoder0_pool, filters[1])
     # 64
 
-    encoder2_pool, encoder2 = encoder_block(encoder1_pool, 128)
+    encoder2_pool, encoder2 = encoder_block(encoder1_pool, filters[2])
     # 32
 
-    encoder3_pool, encoder3 = encoder_block(encoder2_pool, 256)
+    encoder3_pool, encoder3 = encoder_block(encoder2_pool, filters[3])
     # 16
 
-    encoder4_pool, encoder4 = encoder_block(encoder3_pool, 512)
+    encoder4_pool, encoder4 = encoder_block(encoder3_pool, filters[4])
     # 8
 
-    center = conv_block(encoder4_pool, 1024)
+    center = conv_block(encoder4_pool, filters[5])
     # center
 
-    decoder4 = decoder_block(center, encoder4, 512)
+    decoder4 = decoder_block(center, encoder4, filters[4])
     # 16
 
-    decoder3 = decoder_block(decoder4, encoder3, 256)
+    decoder3 = decoder_block(decoder4, encoder3, filters[3])
     # 32
 
-    decoder2 = decoder_block(decoder3, encoder2, 128)
+    decoder2 = decoder_block(decoder3, encoder2, filters[2])
     # 64
 
-    decoder1 = decoder_block(decoder2, encoder1, 64)
+    decoder1 = decoder_block(decoder2, encoder1, filters[1])
     # 128
 
-    decoder0 = decoder_block(decoder1, encoder0, 32)
+    decoder0 = decoder_block(decoder1, encoder0, filters[0])
     # 256
 
     outputs = layers.Conv2D(1, (1, 1), activation='sigmoid')(decoder0)
