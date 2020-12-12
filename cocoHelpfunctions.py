@@ -6,9 +6,17 @@ import os
 import cv2
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import keras
-## For visualizing results
 from skimage import transform
 import tensorflow as tf
+import pickle
+
+
+def loadTrainAnn(path):
+    with open(sessionPath, 'rb') as file_pi:
+        images, dataset_size, coco = pickle.load(file_pi)
+        dataset_size = len(images)
+        print("Dataset length: {}".format(dataset_size))
+        return images, dataset_size, coco
 
 def filterDataset(folder, classes=None, mode='train',examples_Per = 1.0):    
     # initialize COCO api for instance annotations
@@ -55,20 +63,6 @@ def getImage(imageObj, img_folder, input_image_size):
         stacked_img = np.stack((train_img,)*3, axis=-1)
         return stacked_img
     
-def getNormalMask(imageObj, classes, coco, catIds, input_image_size):
-    annIds = coco.getAnnIds(imageObj['id'], catIds=catIds, iscrowd=None)
-    anns = coco.loadAnns(annIds)
-    cats = coco.loadCats(catIds)
-    train_mask = np.zeros(input_image_size)
-    for a in range(len(anns)):
-        className = getClassName(anns[a]['category_id'], cats)
-        pixel_value = classes.index(className)+1
-        new_mask = cv2.resize(coco.annToMask(anns[a])*pixel_value, input_image_size)
-        train_mask = np.maximum(new_mask, train_mask)
-
-    # Add extra dimension for parity with train_img size [X * X * 3]
-    train_mask = train_mask.reshape(input_image_size[0], input_image_size[1], 1)
-    return train_mask  
     
 def getBinaryMask(imageObj, coco, catIds, input_image_size):
     annIds = coco.getAnnIds(imageObj['id'], catIds=catIds, iscrowd=None)
@@ -88,8 +82,7 @@ def getBinaryMask(imageObj, coco, catIds, input_image_size):
     return train_mask
 
 
-def dataGeneratorCoco(images, classes, coco, folder, 
-                      input_image_size=(224,224), batch_size=4, mode='train', mask_type='binary'):
+def dataGeneratorCoco(images, classes, coco, folder, input_image_size=(224,224), batch_size=4, mode='train'):
     
     img_folder = '{}/{}'.format(folder, mode)
     dataset_size = len(images)
@@ -107,11 +100,8 @@ def dataGeneratorCoco(images, classes, coco, folder,
             train_img = getImage(imageObj, img_folder, input_image_size)
             
             ### Create Mask ###
-            if mask_type=="binary":
-                train_mask = getBinaryMask(imageObj, coco, catIds, input_image_size)
-            
-            elif mask_type=="normal":
-                train_mask = getNormalMask(imageObj, classes, coco, catIds, input_image_size)                
+            train_mask = getBinaryMask(imageObj, coco, catIds, input_image_size)
+                    
             
             # Add to respective batch sized arrays
             img[i-c] = train_img
@@ -123,7 +113,7 @@ def dataGeneratorCoco(images, classes, coco, folder,
             random.shuffle(images)
         yield img, mask
 
-def augmentationsGenerator(gen, augGeneratorArgs, seed=None):
+def augmentationsGenerator(gen, augGeneratorArgs,preprocessing, seed=None):
     # Initialize the image data generator with args provided
     image_gen = ImageDataGenerator(**augGeneratorArgs)
     
@@ -148,17 +138,34 @@ def augmentationsGenerator(gen, augGeneratorArgs, seed=None):
                              seed = seed, 
                              shuffle=True)
         
-        img_aug = next(g_x)/255.0
-        
+        #img_aug = procees_input(next(g_x))
+        #img_aug = next(g_x)/255.0
+
+
+        img_aug = preprocessing(next(g_x))
         mask_aug = next(g_y)
-                   
 
         yield img_aug, mask_aug
 
-def splitDataset(images,ratio=0.8):
-    print("splitting dataset...")
+def get_test_Data(images, classes, coco, folder, input_image_size=(224,224), batch_size=4, mode='train'):
+    
+    img_folder = '{}/{}'.format(folder, mode)
     dataset_size = len(images)
-    train_size = int(dataset_size*ratio)
-    print("train_size: {}".format(train_size))
-    print("val_size: {}".format(dataset_size-train_size))
-    return (images[0:train_size],images[train_size:-1])
+    catIds = coco.getCatIds(catNms=classes)
+
+    imgs = np.zeros((dataset_size, input_image_size[0], input_image_size[1], 3)).astype('float')
+    masks = np.zeros((dataset_size, input_image_size[0], input_image_size[1], 1)).astype(np.uint8)
+
+    for i in range(0, dataset_size):
+        imageObj = images[i]
+
+            ### Retrieve Image ###
+        train_img = getImage(imageObj, img_folder, input_image_size)
+            
+            ### Create Mask ###
+        train_mask = getBinaryMask(imageObj, coco, catIds, input_image_size)
+
+        imgs[i] = train_img
+        masks[i] = train_mask
+
+    return imgs, masks
