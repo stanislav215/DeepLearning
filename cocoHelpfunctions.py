@@ -154,7 +154,7 @@ def get_test_Data(images, classes, coco, folder, input_image_size=(224,224)):
     catIds = coco.getCatIds(catNms=classes)
 
     imgs = np.zeros((dataset_size, input_image_size[0], input_image_size[1], 3)).astype('float')
-    masks = np.zeros((dataset_size, input_image_size[0], input_image_size[1], 1)).astype(np.uint8)
+    masks = np.zeros((dataset_size, input_image_size[0], input_image_size[1])).astype(np.uint8)
 
     for i in range(0, dataset_size):
         imageObj = images[i]
