@@ -164,6 +164,7 @@ def get_test_Data(images, classes, coco, folder, input_image_size=(224,224)):
             
             ### Create Mask ###
         train_mask = getBinaryMask(imageObj, coco, catIds, input_image_size)
+        train_mask = train_mask.reshape((input_image_size[0], input_image_size[1]))
 
         imgs[i] = train_img
         masks[i] = train_mask
