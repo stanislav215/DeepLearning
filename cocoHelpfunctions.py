@@ -9,7 +9,7 @@ import keras
 from skimage import transform
 import tensorflow as tf
 import pickle
-
+import matplotlib.pyplot as plt
 
 def loadTrainAnn(path):
     with open(path, 'rb') as file_pi:
