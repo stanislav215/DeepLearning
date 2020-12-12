@@ -169,3 +169,32 @@ def get_test_Data(images, classes, coco, folder, input_image_size=(224,224)):
         masks[i] = train_mask
 
     return imgs, masks
+
+def get_Mean_IoU(y_true,y_pred):
+    iou_coefs = []
+    dataset_size = y_pred.shape[0]
+    for i in range(0,dataset_size):
+        iou_coefs.append(iou_coef(y_true[i],y_pred[i]))
+    meanIou = np.round(np.sum(np.asarray(iou_coefs))/len(iou_coefs),2)
+    print("MeanIOU : {}".format(meanIou))
+    return meanIou
+
+def iou_coef(y_true, y_pred, smooth=1):
+  intersection = np.logical_and(y_true, y_pred)
+  union = np.logical_or(y_true, y_pred)
+  iou_score = np.sum(intersection) / np.sum(union)
+  return iou_score
+
+def get_ypred_and_ytrue(imgs,masks,model):
+    y_pred_arr = []
+    dataset_size,h,w,_ = imgs.shape
+    y_pred = model.predict(imgs)
+    y_pred = y_pred > 0.5
+    return (masks.reshape((dataset_size,h,w)),y_pred.reshape((dataset_size,h,w)))
+
+from sklearn.metrics import confusion_matrix, classification_report
+def get_pixel_precision(y_true,y_pred):
+    tn, fp, fn, tp = confusion_matrix(y_true.ravel(),y_pred.ravel()).ravel()
+    pixel_precision = np.round((tp+tn)/(tn+fp+fn+tp),2)
+
+    print("Pixel precision: {}".format(pixel_precision))
