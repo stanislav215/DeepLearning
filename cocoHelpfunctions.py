@@ -178,7 +178,6 @@ def get_Mean_IoU(y_true,y_pred):
         iou_coefs.append(iou_coef(y_true[i],y_pred[i]))
     meanIou = np.round(np.sum(np.asarray(iou_coefs))/len(iou_coefs),2)
     print("MeanIOU : {}".format(meanIou))
-    return meanIou
 
 def iou_coef(y_true, y_pred, smooth=1):
   intersection = np.logical_and(y_true, y_pred)
@@ -199,3 +198,33 @@ def get_pixel_precision(y_true,y_pred):
     pixel_precision = np.round((tp+tn)/(tn+fp+fn+tp),2)
 
     print("Pixel precision: {}".format(pixel_precision))
+
+def getRGBAmask(input_image):
+    x,y = np.where(input_image == True)
+    if input_image.ndim < 3:
+        input_image = gray2rgb(input_image)
+    result = np.concatenate((input_image, np.zeros((input_image.shape[0], input_image.shape[1], 1))), axis=2)
+    result[x,y,:] = (1,0,0,1)
+    return result
+
+def plotResult(img,mask,model):
+    plt.rcParams.update({'font.size': 12})
+    predictions = model.predict(img)
+    prediction = predictions[0][:,:,0]
+    img = img[0]
+    prediction_tresholded = (prediction > 0.5).astype(np.uint8)
+    plt.figure(figsize=(20,10))
+    plt.subplot(141)
+    plt.imshow(img)
+    plt.imshow(getRGBAmask(mask),alpha=0.4)
+    plt.title("Test img with segmentation mask")
+    plt.subplot(142)
+    plt.imshow(prediction)
+    plt.title("Prediction")
+    plt.subplot(143)
+    plt.imshow(prediction_tresholded)
+    plt.title("Prediction with thresh = 0.5")
+    plt.subplot(144)
+    plt.imshow(img)
+    plt.imshow(getRGBAmask(prediction_tresholded),alpha=0.4)
+    plt.title("Image overlap")
