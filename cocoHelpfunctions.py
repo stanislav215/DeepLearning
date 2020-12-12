@@ -147,9 +147,9 @@ def augmentationsGenerator(gen, augGeneratorArgs,preprocessing, seed=None):
 
         yield img_aug, mask_aug
 
-def get_test_Data(images, classes, coco, folder, input_image_size=(224,224), batch_size=4, mode='train'):
+def get_test_Data(images, classes, coco, folder, input_image_size=(224,224)):
     
-    img_folder = '{}/{}'.format(folder, mode)
+    img_folder = '{}/{}'.format(folder, 'val2017')
     dataset_size = len(images)
     catIds = coco.getCatIds(catNms=classes)
 
