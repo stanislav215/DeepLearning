@@ -12,7 +12,7 @@ import pickle
 
 
 def loadTrainAnn(path):
-    with open(sessionPath, 'rb') as file_pi:
+    with open(path, 'rb') as file_pi:
         images, dataset_size, coco = pickle.load(file_pi)
         dataset_size = len(images)
         print("Dataset length: {}".format(dataset_size))
