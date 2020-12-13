@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow.python.keras import layers
 from tensorflow.python.keras import losses
 from tensorflow.python.keras import models
+import numpy as np
 
 def conv_block(input_tensor, num_filters):
   encoder = layers.Conv2D(num_filters, (3, 3), padding='same')(input_tensor)
@@ -90,3 +91,8 @@ def dice_loss(y_true, y_pred):
 def loadModel(save_model_path):
     return models.load_model(save_model_path, custom_objects={'bce_dice_loss': bce_dice_loss,
                                                            'dice_coeff': dice_coeff})
+def iou_metric(y_true, y_pred):
+  intersection = np.logical_and(y_true, y_pred)
+  union = np.logical_or(y_true, y_pred)
+  iou_score = np.sum(intersection) / np.sum(union)
+  return iou_score

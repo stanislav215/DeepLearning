@@ -180,7 +180,7 @@ def get_Mean_IoU(y_true,y_pred):
     meanIou = np.round(np.sum(np.asarray(iou_coefs))/len(iou_coefs),2)
     print("MeanIOU : {}".format(meanIou))
 
-def iou_coef(y_true, y_pred, smooth=1):
+def iou_coef(y_true, y_pred):
   intersection = np.logical_and(y_true, y_pred)
   union = np.logical_or(y_true, y_pred)
   iou_score = np.sum(intersection) / np.sum(union)
