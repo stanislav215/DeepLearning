@@ -85,7 +85,7 @@ def getBinaryMask(imageObj, coco, catIds, input_image_size):
 
 def dataGeneratorCoco(images, classes, coco, folder, input_image_size=(224,224), batch_size=4, mode='train'):
     
-    img_folder = '{}/{}'.format(folder, mode)
+    img_folder = '{}/{}'.format(folder, "train2017")
     dataset_size = len(images)
     catIds = coco.getCatIds(catNms=classes)
     
