@@ -10,7 +10,7 @@ from skimage import transform
 import tensorflow as tf
 import pickle
 import matplotlib.pyplot as plt
-from skimage import gray2rgb
+from skimage.color import gray2rgb
 
 def loadTrainAnn(path):
     with open(path, 'rb') as file_pi:
