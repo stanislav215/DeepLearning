@@ -91,8 +91,3 @@ def dice_loss(y_true, y_pred):
 def loadModel(save_model_path):
     return models.load_model(save_model_path, custom_objects={'bce_dice_loss': bce_dice_loss,
                                                            'dice_coeff': dice_coeff})
-def iou_metric(y_true, y_pred):
-  intersection = np.logical_and(y_true, y_pred)
-  union = np.logical_or(y_true, y_pred)
-  iou_score = np.sum(intersection) / np.sum(union)
-  return iou_score

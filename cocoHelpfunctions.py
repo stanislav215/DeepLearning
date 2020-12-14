@@ -173,12 +173,17 @@ def get_test_Data(images, classes, coco, folder, input_image_size=(224,224)):
     return imgs, masks
 
 def get_Mean_IoU(y_true,y_pred):
-    iou_coefs = []
+    iou_coefs_car = []
+    iou_coefs_background = []
+
     dataset_size = y_pred.shape[0]
     for i in range(0,dataset_size):
-        iou_coefs.append(iou_coef(y_true[i],y_pred[i]))
-    meanIou = np.round(np.sum(np.asarray(iou_coefs))/len(iou_coefs),2)
-    print("MeanIOU : {}".format(meanIou))
+        iou_coefs_car.append(iou_coef(y_true[i],y_pred[i]))
+        iou_coefs_background.append(iou_coef(~y_true[i],~y_pred[i]))
+    meanIou_car = np.round(np.sum(np.asarray(iou_coefs_car))/len(iou_coefs_car),2)
+    meanIou_back = np.round(np.sum(np.asarray(iou_coefs_background))/len(iou_coefs_background),2)
+    print("Class meanIoU: {}".format(meanIou_car))
+    print("Background meanIoU : {}".format(meanIou_back))
 
 def iou_coef(y_true, y_pred):
   intersection = np.logical_and(y_true, y_pred)
@@ -191,7 +196,7 @@ def get_ypred_and_ytrue(imgs,masks,model):
     dataset_size,h,w,_ = imgs.shape
     y_pred = model.predict(imgs)
     y_pred = y_pred > 0.5
-    return (masks.reshape((dataset_size,h,w)),y_pred.reshape((dataset_size,h,w)))
+    return (masks.reshape((dataset_size,h,w)).astype(np.bool),y_pred.reshape((dataset_size,h,w)).astype(np.bool))
 
 from sklearn.metrics import confusion_matrix, classification_report
 def get_pixel_precision(y_true,y_pred):
